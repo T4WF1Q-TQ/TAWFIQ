@@ -19,7 +19,7 @@
 ║    ██║  ██╗██║  ██║██████╔╝███████╗███████╗██║  ██║                  ║
 ║    ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝                  ║
 ║                                                                      ║
-║         ◈  ECE Student  ·  CET  ·  Embedded Systems  ·  EV  ◈       ║
+║         ◈  ELECTRICAL & COMPUTER  ENGINEERING   ◈                   ║ 
 ║                                                                      ║
 ╚══════════════════════════════════════════════════════════════════════╝
 ```
@@ -57,7 +57,7 @@
   │   > whoami                                                       │
   │                                                                  │
   │   Name    :  Tawfiq Kabeer                                       │
-  │   Role    :  B.Tech ECE Student — S2, CET Trivandrum             │
+  │   Role    :  B.Tech EL Student — S2, CET Trivandrum             │
   │   CGPA    :  10.00 / 10.00  ████████████████████  100%           │
   │   Stack   :  Python · C · Arduino · AutoCAD · Altium             │
   │   Focus   :  Embedded Systems · EV Tech · Web Dev                │
