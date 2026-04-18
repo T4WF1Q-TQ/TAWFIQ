@@ -23,9 +23,10 @@
 ║                                                                      ║
 ╚══════════════════════════════════════════════════════════════════════╝
 ```
+[![Visit Portfolio](https://img.shields.io/badge/◈___Visit_My_Portfolio___◈-d4843a?style=for-the-badge&labelColor=0d0804)](https://YOUR-PORTFOLIO-LINK-HERE)
 
 <!-- ANIMATED TYPING -->
-<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&size=15&duration=3000&pause=800&color=D4843A&center=true&vCenter=true&multiline=true&repeat=true&width=620&height=80&lines=⚡+Electrical+%26+Computer+Engineering+@+CET;🔧+Embedded+Systems+%7C+Arduino+%7C+PCB+Design;🌐+Web+Dev+%7C+Python+%7C+Circuit+Simulation;🚗+EV+Technology+%7C+Automotive+Systems" alt="Typing SVG" />
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&size=15&duration=3000&pause=800&color=D4843A&center=true&vCenter=true&multiline=true&repeat=true&width=620&height=80&lines=%E2%9A%A1+Electrical+%26+Computer+Engineering+%40+CET;%F0%9F%94%A7+Embedded+Systems+%7C+Arduino+%7C+PCB+Design;%F0%9F%8C%90+Web+Dev+%7C+Python+%7C+Circuit+Simulation;%F0%9F%9A%97+EV+Technology+%7C+Automotive+Systems" alt="Typing SVG" />
 
 <br/>
 
@@ -236,6 +237,6 @@
 ╚══════════════════════════════════════════════════════════════════════╝
 ```
 
-[![Visit Portfolio](https://img.shields.io/badge/◈___Visit_My_Portfolio___◈-d4843a?style=for-the-badge&labelColor=0d0804)](https://YOUR-PORTFOLIO-LINK-HERE)
+
 
 </div>
