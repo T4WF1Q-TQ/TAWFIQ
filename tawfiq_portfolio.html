@@ -36,6 +36,9 @@
     overflow-x: hidden;
     cursor: none;
   }
+  body.dialog-open {
+    cursor: auto;
+  }
 
   /* CUSTOM CURSOR */
   .cursor {
@@ -138,6 +141,10 @@
   body:hover .cursor,
   body.touch-active .cursor,
   body.touch-active .cursor-ring { opacity: 1; }
+  body.dialog-open .cursor,
+  body.dialog-open .cursor-ring {
+    opacity: 0;
+  }
   @keyframes hex-pulse {
     0% { transform: scale(0.82) rotate(0deg); opacity: 0; }
     50% { opacity: 0.85; }
@@ -718,6 +725,7 @@
     color: var(--text-primary);
     backdrop-filter: blur(24px) saturate(1.4);
     box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 40px rgba(212,132,58,0.12);
+    cursor: auto;
   }
   .email-dialog::backdrop {
     background: rgba(6, 4, 3, 0.72);
@@ -782,6 +790,7 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.78rem;
     outline: none;
+    cursor: text;
   }
   .email-copy-actions {
     display: flex;
@@ -809,8 +818,62 @@
     font-size: 0.68rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    cursor: none;
+    cursor: pointer;
     transition: all 0.3s;
+  }
+
+  body.mobile-optimized {
+    cursor: auto;
+  }
+  body.mobile-optimized .cursor,
+  body.mobile-optimized .cursor-ring,
+  body.mobile-optimized .noise,
+  body.mobile-optimized .particle,
+  body.mobile-optimized .photo-ring {
+    display: none !important;
+  }
+  body.mobile-optimized,
+  body.mobile-optimized .btn,
+  body.mobile-optimized .portal,
+  body.mobile-optimized .email-copy-btn,
+  body.mobile-optimized .email-close-btn {
+    cursor: auto;
+  }
+  body.mobile-optimized nav,
+  body.mobile-optimized .glass-card,
+  body.mobile-optimized .contact-glass,
+  body.mobile-optimized .photo-glass,
+  body.mobile-optimized .email-dialog,
+  body.mobile-optimized .portal,
+  body.mobile-optimized .btn-ghost {
+    backdrop-filter: none;
+  }
+  body.mobile-optimized .photo-glass::after,
+  body.mobile-optimized .photo-frame,
+  body.mobile-optimized .photo-image,
+  body.mobile-optimized .photo-aura,
+  body.mobile-optimized .hero-text > *,
+  body.mobile-optimized .stats-row,
+  body.mobile-optimized .section-divider,
+  body.mobile-optimized footer,
+  body.mobile-optimized nav {
+    animation: none !important;
+    transition-duration: 0.2s !important;
+    filter: none !important;
+    will-change: auto !important;
+  }
+  body.mobile-optimized .photo-frame {
+    transform: none;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.32);
+  }
+  body.mobile-optimized .photo-frame:hover,
+  body.mobile-optimized .portal:hover,
+  body.mobile-optimized .btn:hover,
+  body.mobile-optimized .glass-card:hover {
+    transform: none;
+  }
+  body.mobile-optimized #bg-canvas {
+    display: none;
   }
   .email-copy-btn:hover,
   .email-close-btn:hover {
@@ -1144,6 +1207,29 @@
       align-items: flex-start;
     }
     .section-divider { margin: 0 1rem; }
+  }
+
+  @media (hover: none), (pointer: coarse), (max-width: 768px) {
+    html { scroll-behavior: auto; }
+    .cursor,
+    .cursor-ring,
+    .noise,
+    .particle,
+    .photo-ring,
+    #bg-canvas {
+      display: none !important;
+    }
+    body {
+      cursor: auto;
+    }
+    .btn,
+    .portal,
+    .email-copy-btn,
+    .email-close-btn,
+    .email-dialog,
+    .email-dialog * {
+      cursor: auto;
+    }
   }
 
   @media (max-width: 640px) and (orientation: portrait) {
@@ -1670,9 +1756,13 @@ const emailCopyBtn = document.getElementById('email-copy-btn');
 const phoneCopyBtn = document.getElementById('phone-copy-btn');
 const emailCloseBtn = document.getElementById('email-close-btn');
 const emailCopyStatus = document.getElementById('email-copy-status');
+function setDialogOpenState(isOpen) {
+  document.body.classList.toggle('dialog-open', isOpen);
+}
 document.querySelectorAll('[data-email-trigger]').forEach(trigger => {
   trigger.addEventListener('click', () => {
     if (!emailDialog) return;
+    setDialogOpenState(true);
     emailDialog.showModal();
     if (emailCopyField) {
       emailCopyField.focus();
@@ -1708,6 +1798,8 @@ if (emailCloseBtn && emailDialog) {
   emailCloseBtn.addEventListener('click', () => emailDialog.close());
 }
 if (emailDialog) {
+  emailDialog.addEventListener('close', () => setDialogOpenState(false));
+  emailDialog.addEventListener('cancel', () => setDialogOpenState(false));
   emailDialog.addEventListener('click', event => {
     const rect = emailDialog.getBoundingClientRect();
     const clickedOutside =
@@ -1722,6 +1814,12 @@ if (emailDialog) {
 // ── CURSOR ──
 const cursor = document.getElementById('cursor');
 const ring = document.getElementById('cursor-ring');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const isMobileDevice = window.matchMedia('(hover: none), (pointer: coarse), (max-width: 768px)').matches;
+const enableMobileOptimization = isMobileDevice || prefersReducedMotion.matches;
+if (enableMobileOptimization) {
+  document.body.classList.add('mobile-optimized');
+}
 let mx = 0, my = 0, rx = 0, ry = 0;
 let cursorAngle = 0;
 let ringSpin = 0;
@@ -1735,68 +1833,70 @@ function updatePointerPosition(x, y) {
     cursorAngle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
   }
 }
-document.addEventListener('mousemove', e => {
-  document.body.classList.remove('touch-active');
-  updatePointerPosition(e.clientX, e.clientY);
-});
-document.addEventListener('touchstart', e => {
-  const touch = e.touches[0];
-  if (!touch) return;
-  document.body.classList.add('touch-active');
-  updatePointerPosition(touch.clientX, touch.clientY);
-  rx = touch.clientX;
-  ry = touch.clientY;
-}, { passive: true });
-document.addEventListener('touchmove', e => {
-  const touch = e.touches[0];
-  if (!touch) return;
-  document.body.classList.add('touch-active');
-  updatePointerPosition(touch.clientX, touch.clientY);
-}, { passive: true });
-document.addEventListener('touchend', () => {
-  document.body.classList.remove('touch-active');
-}, { passive: true });
-document.addEventListener('touchcancel', () => {
-  document.body.classList.remove('touch-active');
-}, { passive: true });
-function animateCursor() {
-  rx += (mx - rx) * 0.14;
-  ry += (my - ry) * 0.14;
-  ringSpin += 0.8;
-  cursor.style.left = mx + 'px';
-  cursor.style.top = my + 'px';
-  ring.style.left = rx + 'px';
-  ring.style.top = ry + 'px';
-  cursor.style.transform = `translate(-50%, -50%) rotate(${cursorAngle}deg)`;
-  ring.style.transform = `translate(-50%, -50%) rotate(${cursorAngle * 0.25 + ringSpin}deg)`;
-  requestAnimationFrame(animateCursor);
-}
-animateCursor();
-function setCursorState(active) {
-  cursor.classList.toggle('active', active);
-  ring.classList.toggle('active', active);
-}
-function pulseCursor() {
-  clearTimeout(pulseTimer);
-  cursor.classList.remove('pulse');
-  ring.classList.remove('pulse');
-  void cursor.offsetWidth;
-  cursor.classList.add('pulse');
-  ring.classList.add('pulse');
-  pulseTimer = setTimeout(() => {
+if (!enableMobileOptimization && cursor && ring) {
+  document.addEventListener('mousemove', e => {
+    document.body.classList.remove('touch-active');
+    updatePointerPosition(e.clientX, e.clientY);
+  });
+  document.addEventListener('touchstart', e => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    document.body.classList.add('touch-active');
+    updatePointerPosition(touch.clientX, touch.clientY);
+    rx = touch.clientX;
+    ry = touch.clientY;
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    document.body.classList.add('touch-active');
+    updatePointerPosition(touch.clientX, touch.clientY);
+  }, { passive: true });
+  document.addEventListener('touchend', () => {
+    document.body.classList.remove('touch-active');
+  }, { passive: true });
+  document.addEventListener('touchcancel', () => {
+    document.body.classList.remove('touch-active');
+  }, { passive: true });
+  function animateCursor() {
+    rx += (mx - rx) * 0.14;
+    ry += (my - ry) * 0.14;
+    ringSpin += 0.8;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    cursor.style.transform = `translate(-50%, -50%) rotate(${cursorAngle}deg)`;
+    ring.style.transform = `translate(-50%, -50%) rotate(${cursorAngle * 0.25 + ringSpin}deg)`;
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+  function setCursorState(active) {
+    cursor.classList.toggle('active', active);
+    ring.classList.toggle('active', active);
+  }
+  function pulseCursor() {
+    clearTimeout(pulseTimer);
     cursor.classList.remove('pulse');
     ring.classList.remove('pulse');
-  }, 550);
+    void cursor.offsetWidth;
+    cursor.classList.add('pulse');
+    ring.classList.add('pulse');
+    pulseTimer = setTimeout(() => {
+      cursor.classList.remove('pulse');
+      ring.classList.remove('pulse');
+    }, 550);
+  }
+  document.querySelectorAll('a, button, .photo-frame').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      setCursorState(true);
+      pulseCursor();
+    });
+    el.addEventListener('mouseleave', () => {
+      setCursorState(false);
+    });
+  });
 }
-document.querySelectorAll('a, button, .photo-frame').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    setCursorState(true);
-    pulseCursor();
-  });
-  el.addEventListener('mouseleave', () => {
-    setCursorState(false);
-  });
-});
 window.addEventListener('load', () => {
   setTimeout(() => {
     document.body.classList.remove('intro-loading');
@@ -1808,21 +1908,24 @@ window.addEventListener('load', () => {
 
 // ── CANVAS BACKGROUND ──
 const canvas = document.getElementById('bg-canvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas ? canvas.getContext('2d') : null;
 let W, H, nodes = [], time = 0;
 const AMBER = [212, 132, 58];
 const RUST  = [176, 92,  42];
 let meteors = [];
 
 function resize() {
+  if (!canvas) return;
   W = canvas.width = window.innerWidth;
   H = canvas.height = window.innerHeight;
 }
-resize();
-window.addEventListener('resize', resize);
+if (!enableMobileOptimization && canvas && ctx) {
+  resize();
+  window.addEventListener('resize', resize);
+}
 
 // Nebula nodes
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < (enableMobileOptimization ? 0 : 5); i++) {
   nodes.push({
     x: Math.random() * W,
     y: Math.random() * H,
@@ -1835,7 +1938,7 @@ for (let i = 0; i < 5; i++) {
 }
 
 // Stars
-const stars = Array.from({length:120}, () => ({
+const stars = Array.from({length: enableMobileOptimization ? 0 : 120}, () => ({
   x: Math.random(), y: Math.random(),
   size: Math.random() * 1.2,
   alpha: Math.random(),
@@ -1843,7 +1946,7 @@ const stars = Array.from({length:120}, () => ({
 }));
 
 // Drifting lines
-const lines = Array.from({length:8}, () => ({
+const lines = Array.from({length: enableMobileOptimization ? 0 : 8}, () => ({
   x: Math.random(),
   y: Math.random() * H,
   len: 60 + Math.random() * 120,
@@ -1864,12 +1967,18 @@ function spawnMeteor() {
   });
 }
 
-setInterval(() => {
-  if (document.hidden) return;
-  if (meteors.length < 6 && Math.random() > 0.18) spawnMeteor();
-}, 2600);
+if (!enableMobileOptimization) {
+  setInterval(() => {
+    if (document.hidden) return;
+    if (meteors.length < 6 && Math.random() > 0.18) spawnMeteor();
+  }, 2600);
+}
 
 function draw() {
+  if (!ctx || !canvas || document.hidden) {
+    requestAnimationFrame(draw);
+    return;
+  }
   time += 0.008;
   ctx.clearRect(0, 0, W, H);
 
@@ -1973,10 +2082,13 @@ function draw() {
 
   requestAnimationFrame(draw);
 }
-draw();
+if (!enableMobileOptimization && canvas && ctx) {
+  draw();
+}
 
 // ── PARTICLES ──
 function spawnParticle() {
+  if (enableMobileOptimization) return;
   const p = document.createElement('div');
   p.className = 'particle';
   const x = Math.random() * 100;
@@ -1994,7 +2106,9 @@ function spawnParticle() {
   document.body.appendChild(p);
   setTimeout(() => p.remove(), (dur + 4) * 1000);
 }
-setInterval(spawnParticle, 600);
+if (!enableMobileOptimization) {
+  setInterval(spawnParticle, 600);
+}
 
 // ── SCROLL REVEALS ──
 const observer = new IntersectionObserver(entries => {
